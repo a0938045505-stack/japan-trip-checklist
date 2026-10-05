@@ -1,0 +1,10 @@
+{
+  "name": "日本出國行李清單",
+  "short_name": "日本行李清單",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#111827",
+  "lang": "zh-Hant",
+  "description": "日本旅遊出發前行李與注意事項清單"
+}

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="日本行李清單">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>日本行李清單</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#7b8495;--accent:#10b981;--line:#e8ebf0}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif}
+body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+.appbar{position:sticky;top:0;z-index:10;padding:calc(14px + env(safe-area-inset-top)) 18px 14px;background:rgba(17,24,39,.96);color:#fff;box-shadow:0 2px 14px #0002}
+.top{display:flex;justify-content:space-between;align-items:center}.brand{font-weight:850;font-size:20px}.small{font-size:11px;color:#cbd5e1;margin-top:3px}
+.circle{border:0;background:#374151;color:#fff;width:40px;height:40px;border-radius:50%;font-size:19px}
+.wrap{max-width:760px;margin:auto;padding:14px}
+.hero{background:linear-gradient(135deg,#111827,#334155);color:#fff;border-radius:22px;padding:20px;margin-bottom:14px;box-shadow:0 8px 25px #11182722}
+.hero h2{margin:0 0 5px;font-size:24px}.hero p{margin:0;color:#cbd5e1;font-size:13px}
+.progressbox{margin-top:17px}.bar{height:10px;background:#475569;border-radius:99px;overflow:hidden}.fill{height:100%;background:#34d399;width:0;transition:.25s}.pt{font-size:12px;margin-top:7px;color:#dbeafe}
+.notice{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px 14px;font-size:13px;line-height:1.55;margin-bottom:17px}
+.section-title{font-size:16px;font-weight:850;margin:20px 3px 9px}
+.card{background:var(--card);border:1px solid #edf0f4;border-radius:18px;min-height:76px;padding:10px 11px;display:grid;grid-template-columns:56px 1fr 44px;gap:11px;align-items:center;margin:8px 0;box-shadow:0 3px 12px #11182708;transition:.2s}
+.pic{height:54px;width:54px;border-radius:15px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:29px}
+.name{font-weight:750;font-size:15px}.note{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+.check{appearance:none;width:32px;height:32px;border:2px solid #cbd5e1;border-radius:50%;background:#fff;position:relative}
+.check:checked{background:var(--accent);border-color:var(--accent)}.check:checked:after{content:"✓";position:absolute;color:#fff;font-size:20px;font-weight:900;left:5px;top:0}
+.done{opacity:.52}.done .name{text-decoration:line-through}
+.bottom{position:fixed;z-index:20;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:9px 14px calc(9px + env(safe-area-inset-bottom));display:flex;gap:9px;box-shadow:0 -5px 18px #1118270c}
+.action{flex:1;border:0;border-radius:13px;padding:12px 8px;font-weight:800;font-size:13px}.dark{background:#111827;color:#fff}.light{background:#eef2f7;color:#374151}
+.tip{text-align:center;color:#9aa2af;font-size:11px;margin:20px 0}
+</style>
+</head>
+<body>
+<header class="appbar"><div class="top"><div><div class="brand">🇯🇵 日本行李清單</div><div class="small">Japan Trip Checklist · PWA</div></div><button class="circle" id="install" hidden>＋</button></div></header>
+<main class="wrap">
+<section class="hero"><h2>出發前檢查</h2><p>一項一項確認，安心去日本 ✈️</p><div class="progressbox"><div class="bar"><div class="fill" id="fill"></div></div><div class="pt" id="pt">已完成 0 / 0</div></div></section>
+<div class="notice">💡 <b>最後提醒：</b>護照、手機、錢包、信用卡、行動電源與個人藥品，出門前再確認一次。</div>
+<div id="list"></div>
+<div class="tip">勾選狀態會自動保存，即使離線也可以使用</div>
+</main>
+<nav class="bottom"><button class="action dark" id="all">✓ 全部完成</button><button class="action light" id="reset">↺ 重新檢查</button></nav>
+<script>
+const data=[
+["🪪 證件與重要物品",[["🛂","護照","確認有效期限及本人資料"],["🎫","機票／登機資訊","手機截圖或 App 備份"],["🏨","住宿訂單","飯店地址與入住資訊"],["💴","日幣現金","準備少量現金以備不時之需"],["💳","信用卡／金融卡","確認海外交易功能"],["📱","手機","確認網路／SIM／eSIM"],["🚗","租車資料／駕照","自駕旅遊請確認相關文件"]]],
+["🔌 3C 與充電",[["🔋","行動電源","放隨身行李，不要託運"],["🔌","充電器","手機、手錶等"],["🔗","充電線","建議每種設備各帶一條"],["🔌","延長線／多孔充電器","多人旅行很方便"],["🎧","耳機","飛機與旅途中使用"]]],
+["👕 衣物與日用品",[["👕","換洗衣物","依天數準備"],["🧥","外套／保暖衣物","依日本當地天氣調整"],["👟","舒適鞋子","日本通常會走很多路"],["🧦","襪子／內衣褲","可多帶一套備用"],["🪥","盥洗用品","牙刷、牙膏、刮鬍用品等"],["💊","個人藥品","常用藥、處方藥"],["🧻","衛生紙／濕紙巾","外出備用"]]],
+["☔ 日本旅遊實用物品",[["☂️","雨傘","依天氣預報決定是否攜帶"],["🛍️","購物袋","日本部分店家不免費提供"],["🧴","防曬用品","晴天及戶外行程使用"],["😷","口罩","依個人需求"],["🧳","行李鎖","行李箱備用"],["📸","相機／記憶卡","有拍照需求再攜帶"]]],
+["⚠️ 出發前注意事項",[["🌤️","確認日本天氣","出發前 1～2 天再確認"],["💱","確認換匯／提款","確認銀行海外提款及刷卡"],["📶","確認網路","SIM／eSIM／漫遊先設定"],["🔋","充飽手機與行動電源","避免旅途中沒電"],["🧳","確認行李重量","避免機場超重"],["🏠","確認家中門窗／電器","離家前最後檢查"],["📍","下載離線地圖","網路不穩時仍可查路"]]]
+];
+const key="japan-pwa-v1";let saved=JSON.parse(localStorage.getItem(key)||"{}"), n=0;
+const list=document.getElementById("list");
+data.forEach(s=>{let t=document.createElement("div");t.className="section-title";t.textContent=s[0];list.appendChild(t);
+s[1].forEach(x=>{let id="i"+n++,c=document.createElement("div");c.className="card";c.innerHTML=`<div class="pic">${x[0]}</div><div><div class="name">${x[1]}</div><div class="note">${x[2]}</div></div><input class="check" type="checkbox" id="${id}" ${saved[id]?"checked":""}>`;list.appendChild(c);
+let cb=c.querySelector(".check");if(cb.checked)c.classList.add("done");cb.onchange=()=>{saved[id]=cb.checked;localStorage.setItem(key,JSON.stringify(saved));c.classList.toggle("done",cb.checked);update()}})});
+function update(){let a=[...document.querySelectorAll(".check")],d=a.filter(x=>x.checked).length,p=a.length?d/a.length*100:0;document.getElementById("fill").style.width=p+"%";document.getElementById("pt").textContent=`已完成 ${d} / ${a.length}（${Math.round(p)}%）`}
+document.getElementById("all").onclick=()=>document.querySelectorAll(".check").forEach(x=>{if(!x.checked)x.click()});
+document.getElementById("reset").onclick=()=>{if(confirm("確定要全部取消勾選嗎？"))document.querySelectorAll(".check").forEach(x=>{if(x.checked)x.click()})};
+let deferred=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;document.getElementById("install").hidden=false});
+document.getElementById("install").onclick=async()=>{if(deferred){deferred.prompt();await deferred.userChoice;deferred=null;document.getElementById("install").hidden=true}};
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
+update();
+</script>
+</body></html>
